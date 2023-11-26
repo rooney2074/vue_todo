@@ -1,6 +1,6 @@
 <template>
     <div class="header">
-        <input ref="newmessage" v-model="todo" class="input" type="text" placeholder="Enter Your Task Here....">&nbsp;
+        <input ref="newmessage" v-model="todo" class="input" type="text" @keyup.enter="addnewtask" placeholder="Enter Your Task Here....">&nbsp;
         <v-btn @click="addnewtask" color="black">Add_New</v-btn>
     </div>
     <v-dialog v-model="showAlert" max-width="400">
@@ -54,12 +54,12 @@
             </div>
         </div>
     </div>
-    <div v-if="!loading" class="extra-container">
+    <div v-if="messages.length > 0 & !loading" class="extra-container">
         <div><label><input type="checkbox" :checked="!anyremaining" @change="checkAlltodo"> Check All</label></div>
         <div>{{ remaining }} item left</div>
       </div>
 
-      <div v-if="!loading" class="extra-container">
+      <div v-if="messages.length > 0 & !loading" class="extra-container">
         <div>
           <button :class="{ active: filter == 'all'}" @click="filter = 'all'" small>All</button>&nbsp;
           <button :class="{ active: filter == 'active'}" @click="filter = 'active'" small>Active</button>&nbsp;
