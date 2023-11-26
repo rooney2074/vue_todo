@@ -27,6 +27,30 @@
         </v-card>
       </v-dialog>
 
+      <v-dialog v-model="empty" max-width="400">
+        <v-card>
+          <v-card-title>Todo</v-card-title>
+          <v-card-text>
+            you have passed an empty task
+          </v-card-text>
+          <v-card-actions>
+            <v-btn @click="empty = false">Close</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <v-dialog v-model="update" max-width="400">
+        <v-card>
+          <v-card-title>Todo</v-card-title>
+          <v-card-text>
+            Updated
+          </v-card-text>
+          <v-card-actions>
+            <v-btn @click="update = false">Close</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
     <div class="outterbox">
         <div v-if="messages.length === 0 & !loading" class="no-task-message">
             <p>No Task Added</p>
@@ -42,11 +66,10 @@
                     <!-- <h5>{{ message.text }}</h5> -->
                     <div>
                         <input type="checkbox" v-model="message.done" class="checkbox">&nbsp;
-                        <input :disabled="message.done" type="text" v-model="message.text" class="input_2">
+                        <input :disabled="message.done" type="text" v-model="message.text" @keyup.enter="updateTask(message)" class="input_2">
                     </div>
                     
                     <div class="remove-item">
-                        <v-btn @click="updateTask(message)" v-if="!message.done" color="grey">Update</v-btn>&nbsp;
                         <v-icon @click="remove(message.id)" color="red">mdi-close</v-icon>
                     </div>
                 </div>
@@ -98,16 +121,26 @@ const db = getFirestore(app);
         components: {},
         methods: {
             addnewtask: function () {
+                if (this.todo.trim() !== '') {
                 addDoc(collection(db,'messages'),{
-                    text:this.$refs.newmessage.value,
-                    date:Date.now(),
+                    text: this.$refs.newmessage.value,
+                    date: Date.now(),
                     done: false
                 });
+
                 this.showAlert = true;
-                this.todo = ''
+
+                this.todo = '';
+
                 setTimeout(() => {
-                this.showAlert = false;
+                    this.showAlert = false;
                 }, 3000);
+            }else{
+                this.empty = true;
+                setTimeout(() => {
+                    this.empty = false;
+                }, 3000);
+            }
             },
             updateTask:function (message) {
                 setDoc(doc(db, 'messages', message.id), {
@@ -115,6 +148,10 @@ const db = getFirestore(app);
                     date:message.date,
                     done: message.done
                 })
+                this.update = true;
+                setTimeout(() => {
+                    this.update = false;
+                }, 3000);
             },
             remove: function (id) {
                 deleteDoc(doc(db,'messages', id))
@@ -153,7 +190,9 @@ const db = getFirestore(app);
                 loading: true,
                 filter:'all',
                 showAlert: false,
-                showAlertremoved: false
+                showAlertremoved: false,
+                empty:false,
+                update:false
             }
         },
         mounted(){
